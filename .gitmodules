@@ -1,0 +1,4 @@
+[submodule "libctru"]
+	path = libctru
+	url = https://github.com/Pixel-Pop/libctru.git
+	branch = home-menu
