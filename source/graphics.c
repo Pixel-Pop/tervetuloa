@@ -15,7 +15,6 @@ u32 clrRec1, clrRec2, clrRec3, clrRec4;
 u32 clrClear;
 
 void graphicsInit() {
-
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();

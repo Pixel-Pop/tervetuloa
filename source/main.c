@@ -11,22 +11,8 @@
 extern u32 __ctru_heap;
 extern u32 __ctru_linear_heap;
 
-int main(int argc, char* argv[])
-{
-	// libctru automatically inits srv and apt
-	launchTitles();
-	launchTitles2();
-	hidInit(); // Uses ir:rst
-	ptmSysmInit();
-	launchTitles3();
-
-	APT_PrepareToStartNewestHomeMenu();
-	
-	gfxInitDefault();
-	consoleInit(GFX_BOTTOM, NULL);
-
+void printMem() {
 	Result rc = 0;
-
 	// Retrieve handle to the resource limit object for our process
 	Handle reslimit = 0;
 	rc = svcGetResourceLimit(&reslimit, CUR_PROCESS_HANDLE);
@@ -54,12 +40,57 @@ int main(int argc, char* argv[])
 	printf("base size: %07lx\n", osGetMemRegionSize(MEMREGION_BASE));
 	printf("base used: %07lx\n", osGetMemRegionUsed(MEMREGION_BASE));
 	printf("base free: %07lx\n", osGetMemRegionFree(MEMREGION_BASE));
+	printf("app mem type: %lx\n", *((u32*)0x1FF80030));
+
+	printf("max system region alloc: %lx\n", *((u32*)0x1FF80044));
+}
+
+void handleWakeup() {
+	APT_Command cmd;
+	while (true) {
+		cmd = aptWaitForWakeUp(TR_JUMPTOMENU);
+		printf("apt cmd: %x\n", cmd);
+
+		switch (cmd) {
+		case APTCMD_WAKEUP_EXIT: // Application closed.
+			GSPGPU_SetLcdForceBlack(0);
+			return;
+			break;
+		case APTCMD_WAKEUP_PAUSE: // Application paused by pressing home button.
+			printf("Press X to resume application.\n");
+			return;
+			break;
+		case APTCMD_WAKEUP_LAUNCHAPP: // Application jumping to another application (such as from titles in FBI).
+			jumpApp();
+			break;
+		default:
+			return;
+		}
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	aptSetHomeAllowed(false);
+
+	nsInit();
+	launchTitles();
+	launchTitles2();
+	hidInit(); // Uses ir:rst
+	ptmSysmInit();
+	launchTitles3();
+
+	APT_PrepareToStartNewestHomeMenu();
+	
+	gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
+
+	printMem();
 
 	graphicsInit();
 	printf("\nHello, world!\n");
 	printf("Press START to exit.\n");
 	printf("Press A to start FBI.\n");
-	printf("Then, press X to wakeup FBI.\n");
 
 	// Main loop
 	while (aptMainLoop())
@@ -74,26 +105,13 @@ int main(int argc, char* argv[])
 			break;
 
 		if (kDown & KEY_A) {
-			printf("PrepareToStart: %lx\n", APT_PrepareToStartApplication(0x000400000F800100LL, 1));
-			printf("Start: %lx\n", APT_StartApplication());
-
-		}
-		if (kDown & KEY_X) {
-			bool registered = false;
-			APT_IsRegistered(0x300, &registered);
-			if (registered) {
-				printf("registered!\n");
-
-				printf("Wakeup: %lx\n", APT_WakeupApplication());
-				APT_NotifyToWait(0x300);
-				u8 in = 0;
-				u8 out = 0;
-				printf("AppletUtility: %lx\n", APT_AppletUtility(0x4, &out, 1, &in, 1));
-				graphicsFini();
-				gfxExit();
+			if (R_SUCCEEDED(launchApp(0x000400000F800100LL, 1, true))) { // FBI
+				handleWakeup();
 			}
-			else {
-				printf("not registered :(\n");
+		}
+		else if (kDown & KEY_X) {
+			if (R_SUCCEEDED(resumeApp())) {
+				handleWakeup();
 			}
 		}
 	}

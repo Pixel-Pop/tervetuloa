@@ -161,7 +161,7 @@ endif
 .PHONY: all clean
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES) $(OUTPUT).elf
+all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	objcopy -O binary -I elf32-little $(TARGET).elf code.bin
 	makerom -elf $(TARGET).elf -rsf $(TARGET).rsf -o $(TARGET).cxi

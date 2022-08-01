@@ -31,6 +31,8 @@ AccessControlInfo:
   UseExtSaveData                : false # enables ExtData       
   #ExtSaveDataId                : 0x300 # only set this when the ID is different to the UniqueId
 
+  ResourceLimitCategory         : sysapplet
+
   # FS:USER Archive Access Permissions
   # Uncomment as required
   FileSystemAccess:
@@ -60,7 +62,7 @@ AccessControlInfo:
   MemoryType                    : System # Application/System/Base
   SystemMode                    : 64MB # 64MB(Default)/96MB/80MB/72MB/32MB
   IdealProcessor                : 1
-  AffinityMask                  : 1
+  AffinityMask                  : 2
   Priority                      : 16
   MaxCpu                        : 0x9E # Default
   HandleTableSize               : 0x200

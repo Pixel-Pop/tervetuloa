@@ -7,7 +7,6 @@
 
 void launchTitles() {
 	u32 temp;
-	nsInit();
 	NS_LaunchTitle(SYSMODULE | 0x1D02, 0, &temp); // hid
 	NS_LaunchTitle(SYSMODULE | 0x1802, 0, &temp); // codec
 	NS_LaunchTitle(SYSMODULE | 0x1A02, 0, &temp); // dsp
@@ -39,3 +38,11 @@ void launchTitles3() {
 	NS_LaunchTitle(SYSMODULE | 0x2C02, 0, &temp); // nim
 	NS_LaunchTitle(SYSMODULE | 0x2802, 0, &temp); // dlp
 }
+
+Result startApp(u64 tid, FS_MediaType mediaType, bool wakeup);
+
+Result launchApp(u64 tid, FS_MediaType mediaType, bool wakeup);
+
+Result resumeApp();
+
+Result jumpApp();
